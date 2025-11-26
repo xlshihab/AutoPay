@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "806152344395",
+    "project_id": "muhib-official",
+    "storage_bucket": "muhib-official.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:806152344395:android:97c0913db47e83a020cece",
+        "android_client_info": {
+          "package_name": "com.elbito.autopay"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "806152344395-4sp6s51mk2p0odm1akn0dgc42au5go8d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYKOGS4FMqNPydlWwDpoN0ZZeFK223bek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "806152344395-4sp6s51mk2p0odm1akn0dgc42au5go8d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
