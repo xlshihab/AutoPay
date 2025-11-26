@@ -2,18 +2,18 @@ class AppConstants {
   // Firestore Collection
   static const String paymentsCollection = 'payments';
 
-  // SMS Sender IDs
+  // SMS Sender IDs (Official short codes only)
   static const List<String> bkashSenders = [
-    'bKash',
-    '16247',
-    '01521798452'
+    'bKash',    // Official name
+    '16247',    // Official short code
+    '01521798452',  // Test number for development
   ];
 
   static const List<String> nagadSenders = [
-    'NAGAD',
-    '16167',
-    'Nagad',
-    '01521456789'
+    'NAGAD',    // Official name
+    'Nagad',    // Alternative case
+    '16167',    // Official short code
+    '01521798452',  // Test number for development
   ];
 
   // SMS Keywords for received money
@@ -23,26 +23,27 @@ class AppConstants {
     'টাকা জমা',
     'Cash In',
     'Money Received',
+    'have received',
   ];
 
   // Regex Patterns
   static final RegExp bkashAmountPattern = RegExp(
-    r'Tk\s?(\d+(?:,\d+)*(?:\.\d+)?)|BDT\s?(\d+(?:,\d+)*(?:\.\d+)?)|Amount:\s?Tk\s?(\d+(?:,\d+)*(?:\.\d+)?)',
+    r'Tk\s+(\d+(?:[,\.]\d+)*(?:\.\d+)?)|BDT\s+(\d+(?:[,\.]\d+)*(?:\.\d+)?)|Amount:\s*Tk\s+(\d+(?:[,\.]\d+)*(?:\.\d+)?)',
     caseSensitive: false,
   );
 
   static final RegExp nagadAmountPattern = RegExp(
-    r'Tk\.?\s?(\d+(?:,\d+)*(?:\.\d+)?)|টাকা\s?(\d+(?:,\d+)*(?:\.\d+)?)|Amount:\s?Tk\s?(\d+(?:,\d+)*(?:\.\d+)?)',
+    r'Tk\s+(\d+(?:[,\.]\d+)*(?:\.\d+)?)|টাকা\s+(\d+(?:[,\.]\d+)*(?:\.\d+)?)|Amount:\s*Tk\s+(\d+(?:[,\.]\d+)*(?:\.\d+)?)',
     caseSensitive: false,
   );
 
   static final RegExp bkashTransactionIdPattern = RegExp(
-    r'TrxID\s?[:]?\s?([A-Z0-9]+)|TxnID\s?[:]?\s?([A-Z0-9]+)',
+    r'TrxID[:\s]+([A-Z0-9]+)|TxnID[:\s]+([A-Z0-9]+)',
     caseSensitive: false,
   );
 
   static final RegExp nagadTransactionIdPattern = RegExp(
-    r'Transaction\s?ID\s?[:]?\s?([A-Z0-9]+)|TxnID\s?[:]?\s?([A-Z0-9]+)',
+    r'Transaction\s+ID[:\s]+([A-Z0-9]+)|TxnID[:\s]+([A-Z0-9]+)',
     caseSensitive: false,
   );
 

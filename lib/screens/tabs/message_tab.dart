@@ -92,21 +92,22 @@ class _MessageTabState extends State<MessageTab> {
         await _loadData(isInitial: true);
       },
       child: ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(16),
-      itemCount: _isLoadingMore ? _payments.length + 1 : _payments.length,
-      itemBuilder: (context, index) {
-        if (index == _payments.length) {
-          return const Padding(
-            padding: EdgeInsets.all(16),
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-        final payment = _payments[index];
-        return _buildPaymentCard(payment);
-      },
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        itemCount: _isLoadingMore ? _payments.length + 1 : _payments.length,
+        itemBuilder: (context, index) {
+          if (index == _payments.length) {
+            return const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          final payment = _payments[index];
+          return _buildPaymentCard(payment);
+        },
       ),
     );
   }

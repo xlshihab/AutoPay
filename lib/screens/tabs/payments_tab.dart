@@ -92,21 +92,22 @@ class _PaymentsTabState extends State<PaymentsTab> {
         await _loadData(isInitial: true);
       },
       child: ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(16),
-      itemCount: _isLoadingMore ? _transactions.length + 1 : _transactions.length,
-      itemBuilder: (context, index) {
-        if (index == _transactions.length) {
-          return const Padding(
-            padding: EdgeInsets.all(16),
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-        final transaction = _transactions[index];
-        return _buildTransactionCard(transaction);
-      },
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        itemCount: _isLoadingMore ? _transactions.length + 1 : _transactions.length,
+        itemBuilder: (context, index) {
+          if (index == _transactions.length) {
+            return const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          final transaction = _transactions[index];
+          return _buildTransactionCard(transaction);
+        },
       ),
     );
   }

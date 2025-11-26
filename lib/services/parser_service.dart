@@ -21,15 +21,16 @@ class ParserService {
 
   // Identify if SMS is from bKash or Nagad
   static String? _identifyMethod(String address, String body) {
-    // Check sender address
+    // STRICT: Only check sender address (not body text)
+    // This prevents fake SMS from random numbers
     for (final sender in AppConstants.bkashSenders) {
-      if (address.contains(sender) || body.toLowerCase().contains('bkash')) {
+      if (address.contains(sender)) {
         return 'bkash';
       }
     }
 
     for (final sender in AppConstants.nagadSenders) {
-      if (address.contains(sender) || body.toLowerCase().contains('nagad')) {
+      if (address.contains(sender)) {
         return 'nagad';
       }
     }
