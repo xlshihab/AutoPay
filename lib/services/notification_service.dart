@@ -89,8 +89,8 @@ class NotificationService {
                'TrxID: $trxId\n'
                'Status: $status';
         break;
-      case 'entry_fee':
-        title = '🎮 নতুন এন্ট্রি ফি';
+      case 'payment':
+        title = '💳 নতুন পেমেন্ট রিকুয়েস্ট';
         body = 'Name: $userName\n'
                'Phone: $phoneNumber\n'
                'Amount: ৳$amount\n'

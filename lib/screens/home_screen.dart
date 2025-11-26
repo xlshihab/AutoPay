@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/sms_service.dart';
-import '../services/native_sms_service.dart';
+import '../services/fcm_service.dart';
 import '../utils/permissions.dart';
 import 'settings_screen.dart';
 import 'tabs/payments_tab.dart';
@@ -22,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _initializeService();
+    _ensureFCMTokenSaved();
   }
 
   @override
@@ -36,21 +37,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     
     // SMS service automatically starts and always runs
     await SmsService.initialize();
-    
-    // Test native SMS reader
-    _testNativeSms();
   }
-  
-  Future<void> _testNativeSms() async {
-    try {
-      final payments = await NativeSmsService.getRecentPayments(limit: 5);
-      if (payments.isNotEmpty && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${payments.length}টি SMS পড়া হয়েছে')),
-        );
-      }
-    } catch (e) {
-      // Silent fail
+
+  Future<void> _ensureFCMTokenSaved() async {
+    // Check after 2 seconds (let Firebase initialize)
+    await Future.delayed(const Duration(seconds: 2));
+    
+    final saved = await FCMService.isTokenSaved();
+    if (!saved) {
+      print('⚠️ FCM token not saved, attempting to save...');
+      await FCMService.forceSaveToken();
     }
   }
 

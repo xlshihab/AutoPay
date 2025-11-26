@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:another_telephony/telephony.dart';
 import '../utils/permissions.dart';
+import '../services/fcm_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -13,11 +14,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final Telephony telephony = Telephony.instance;
   Map<String, String> _permissionStatuses = {};
   bool _isLoading = true;
+  bool _fcmTokenSaved = false;
+  String? _fcmToken;
 
   @override
   void initState() {
     super.initState();
     _loadStatus();
+    _checkFCMTokenStatus();
   }
 
   Future<void> _loadStatus() async {
@@ -31,6 +35,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
+  Future<void> _checkFCMTokenStatus() async {
+    final saved = await FCMService.isTokenSaved();
+    final token = await FCMService.getToken();
+    setState(() {
+      _fcmTokenSaved = saved;
+      _fcmToken = token;
+    });
+  }
+
+  Future<void> _forceSaveToken() async {
+    final result = await FCMService.forceSaveToken();
+    if (mounted) {
+      if (result) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('✅ FCM Token saved successfully!')),
+        );
+        _checkFCMTokenStatus();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('❌ Failed to save FCM token')),
+        );
+      }
+    }
+  }
+
+  void _showTokenDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('FCM Token'),
+        content: SelectableText(_fcmToken ?? 'No token available'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _requestAllPermissions() async {
     // Request SMS permission using another_telephony
     await telephony.requestPhoneAndSmsPermissions;
@@ -38,10 +83,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Request other permissions
     await PermissionHelper.requestAllPermissions();
     await _loadStatus();
-  }
-  
-  Future<void> _openSettings() async {
-    await PermissionHelper.openAppSettings();
   }
 
   @override
@@ -85,58 +126,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             icon: const Icon(Icons.security),
                             label: const Text('পারমিশন রিকোয়েস্ট করুন'),
                           ),
-                          const SizedBox(height: 12),
-                          OutlinedButton.icon(
-                            onPressed: _openSettings,
-                            icon: const Icon(Icons.settings),
-                            label: const Text('সেটিংসে যান (Manual)'),
-                          ),
                         ],
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
 
-                  // ADB Testing Help
+                  // FCM Token Status
+                  const Text(
+                    'FCM Notification',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
                   Card(
-                    color: Colors.blue.shade50,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.developer_mode, color: Colors.blue.shade700),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'Development/Testing Setup',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'For testing with ADB (USB debugging):\n\n'
-                            '1. Enable Developer Options on phone\n'
-                            '2. Enable USB Debugging\n'
-                            '3. Connect phone via USB\n'
-                            '4. Run these commands:\n\n'
-                            'adb uninstall com.elbito.autopay\n'
-                            'adb install -r app-debug.apk\n'
-                            'adb shell pm grant com.elbito.autopay android.permission.READ_SMS\n'
-                            'adb shell pm grant com.elbito.autopay android.permission.RECEIVE_SMS\n'
-                            'adb shell pm grant com.elbito.autopay android.permission.READ_PHONE_STATE\n'
-                            'adb shell pm grant com.elbito.autopay android.permission.POST_NOTIFICATIONS\n\n'
-                            'Then launch the app.',
-                            style: TextStyle(fontSize: 12, fontFamily: 'monospace'),
-                          ),
-                        ],
+                    child: ListTile(
+                      leading: Icon(
+                        _fcmTokenSaved ? Icons.check_circle : Icons.error,
+                        color: _fcmTokenSaved ? Colors.green : Colors.orange,
+                        size: 32,
                       ),
+                      title: const Text('FCM Token Status'),
+                      subtitle: Text(_fcmTokenSaved 
+                        ? 'Token saved ✓ - Notifications will work' 
+                        : 'Token not saved - Click to save'),
+                      trailing: _fcmTokenSaved 
+                        ? IconButton(
+                            icon: const Icon(Icons.info_outline),
+                            onPressed: _showTokenDialog,
+                            tooltip: 'View Token',
+                          )
+                        : ElevatedButton.icon(
+                            onPressed: _forceSaveToken,
+                            icon: const Icon(Icons.save),
+                            label: const Text('Save'),
+                          ),
+                      onTap: _fcmTokenSaved ? _showTokenDialog : _forceSaveToken,
                     ),
                   ),
 

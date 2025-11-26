@@ -10,22 +10,29 @@ void main() async {
   // Initialize Firebase
   try {
     await FirebaseService.initialize();
+    print('✅ Firebase initialized');
   } catch (e) {
-    // Handle silently
+    print('❌ Firebase init error: $e');
   }
   
   // Initialize Notifications
   try {
     await NotificationService.initialize();
+    print('✅ Notification service initialized');
   } catch (e) {
-    // Handle silently
+    print('❌ Notification init error: $e');
   }
   
-  // Initialize FCM
+  // Initialize FCM with status check
   try {
-    await FCMService.initialize();
+    bool fcmStatus = await FCMService.initialize();
+    if (fcmStatus) {
+      print('✅ FCM initialized and token saved');
+    } else {
+      print('⚠️ FCM initialized but token not saved');
+    }
   } catch (e) {
-    // Handle silently
+    print('❌ FCM init error: $e');
   }
   
   runApp(const MyApp());

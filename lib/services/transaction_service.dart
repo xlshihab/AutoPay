@@ -4,12 +4,12 @@ import '../models/transaction_model.dart';
 class TransactionService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Fetch deposits and entry fees
+  // Fetch deposits and payments
   static Future<List<TransactionModel>> fetchPayments({int limit = 10}) async {
     try {
       final snapshot = await _firestore
           .collection('transactions')
-          .where('type', whereIn: ['deposit', 'entry_fee'])
+          .where('type', whereIn: ['deposit', 'payment'])
           .orderBy('createdAt', descending: true)
           .limit(limit)
           .get();
@@ -40,7 +40,7 @@ class TransactionService {
     }
   }
 
-  // Approve deposit/entry_fee - Update transaction and user balance
+  // Approve deposit/payment - Update transaction and user balance
   static Future<bool> approveDeposit(TransactionModel transaction) async {
     try {
       // Use Firestore transaction for atomic operation
@@ -74,7 +74,7 @@ class TransactionService {
     }
   }
 
-  // Reject deposit/entry_fee
+  // Reject deposit/payment
   static Future<bool> rejectTransaction(String transactionId) async {
     try {
       await _firestore.collection('transactions').doc(transactionId).update({
