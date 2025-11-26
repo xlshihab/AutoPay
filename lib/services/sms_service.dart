@@ -1,11 +1,14 @@
 import 'package:another_telephony/telephony.dart';
+import 'package:flutter/services.dart';
 import 'firebase_service.dart';
 import 'parser_service.dart';
+import 'foreground_sms_service.dart';
 import '../models/payment_model.dart';
 import '../sms_background_handler.dart';
 
 class SmsService {
   static final Telephony telephony = Telephony.instance;
+  static const MethodChannel _smsBackgroundChannel = MethodChannel('com.elbito.autopay/sms_background');
 
   // Initialize SMS listener
   static Future<bool> initialize() async {
@@ -17,7 +20,13 @@ class SmsService {
         return false;
       }
 
-      // Start listening to SMS with background handler
+      // Setup background channel handler
+      _smsBackgroundChannel.setMethodCallHandler(_handleBackgroundSms);
+
+      // Start foreground service for persistent SMS listening
+      await ForegroundSmsService.startService();
+
+      // Also start telephony listener (as fallback)
       telephony.listenIncomingSms(
         onNewMessage: _onSmsReceived,
         onBackgroundMessage: onBackgroundMessage,
@@ -27,6 +36,32 @@ class SmsService {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+  
+  // Handle SMS from background service
+  static Future<void> _handleBackgroundSms(MethodCall call) async {
+    if (call.method == 'onSmsReceived') {
+      try {
+        final Map<dynamic, dynamic> data = call.arguments;
+        final String address = data['address'] ?? '';
+        final String body = data['body'] ?? '';
+        
+        // Parse SMS
+        final payment = ParserService.parseSms(address, body);
+        
+        if (payment != null) {
+          // Initialize Firebase if needed
+          if (!FirebaseService.isInitialized()) {
+            await FirebaseService.initialize();
+          }
+          
+          // Save to Firebase
+          await FirebaseService.savePayment(payment);
+        }
+      } catch (e) {
+        // Silent fail
+      }
     }
   }
 
