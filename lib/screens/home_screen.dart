@@ -45,7 +45,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     
     final saved = await FCMService.isTokenSaved();
     if (!saved) {
-      print('⚠️ FCM token not saved, attempting to save...');
       await FCMService.forceSaveToken();
     }
   }

@@ -21,7 +21,6 @@ class FCMService {
     try {
       // Get token first (no permission needed for this)
       String? token = await _messaging.getToken();
-      print('🔵 FCM Token retrieved: ${token?.substring(0, 20)}...');
       
       // Request permission
       NotificationSettings settings = await _messaging.requestPermission(
@@ -31,13 +30,10 @@ class FCMService {
         provisional: false,
       );
 
-      print('🔵 FCM Permission: ${settings.authorizationStatus}');
-
       // Save token regardless of permission (for future use)
       if (token != null) {
         bool saved = await _saveFCMToken(token);
         _tokenSaved = saved;
-        print(saved ? '✅ FCM Token saved successfully' : '❌ FCM Token save failed');
       }
 
       // Setup handlers only if authorized
@@ -64,7 +60,6 @@ class FCMService {
       _initialized = true;
       return _tokenSaved;
     } catch (e) {
-      print('❌ FCM initialization error: $e');
       return false;
     }
   }
@@ -72,8 +67,6 @@ class FCMService {
   // Save FCM token to Firestore
   static Future<bool> _saveFCMToken(String token) async {
     try {
-      print('🔵 Saving FCM token to Firestore...');
-      
       final docRef = FirebaseFirestore.instance
           .collection('device_tokens')
           .doc('admin_device');
@@ -91,9 +84,6 @@ class FCMService {
             'tokens': tokens,
             'updatedAt': FieldValue.serverTimestamp(),
           });
-          print('✅ Token added to existing array');
-        } else {
-          print('ℹ️ Token already exists in array');
         }
       } else {
         // Create new document with tokens array
@@ -102,13 +92,11 @@ class FCMService {
           'updatedAt': FieldValue.serverTimestamp(),
           'platform': 'android',
         });
-        print('✅ New token document created');
       }
       
       _tokenSaved = true;
       return true;
     } catch (e) {
-      print('❌ Token save error: $e');
       return false;
     }
   }
@@ -139,12 +127,10 @@ class FCMService {
     try {
       String? token = await _messaging.getToken();
       if (token == null) {
-        print('❌ No FCM token available');
         return false;
       }
       return await _saveFCMToken(token);
     } catch (e) {
-      print('❌ Force save error: $e');
       return false;
     }
   }
